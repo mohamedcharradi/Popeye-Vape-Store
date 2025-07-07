@@ -33,13 +33,13 @@ export default function AdminDashboard() {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>Admin Dashboard</Text>
-          <Text style={styles.headerSubtitle}>Welcome back, Admin!</Text>
+          <Text style={styles.headerSubtitle}>Welcome back, Chef!</Text>
         </View>
         <TouchableOpacity 
           style={styles.homeButton} 
           onPress={() => router.push('/')}
         >
-          <Ionicons name="home" size={24} color="#ffffff" />
+          <Ionicons name="log-out-outline" size={24} color="#1A1A1AFF" />
         </TouchableOpacity>
       </View>
 
@@ -117,14 +117,25 @@ export default function AdminDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FFFFFFFD',
   },
   header: {
     padding: 20,
-    backgroundColor: '#2196F3',
+    backgroundColor: '#ffd000',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 40,    
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+
   },
   headerContent: {
     flex: 1,
@@ -132,18 +143,26 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#1A1A1AFF',
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#ffffff',
+    color: '#1A1A1AFF',
     opacity: 0.9,
   },
   homeButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'white',
     borderRadius: 8,
     padding: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   scrollView: {
     flex: 1,
@@ -151,8 +170,10 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: 16,
-    gap: 12,
+    padding: 12,
+    gap: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statCard: {
     backgroundColor: '#ffffff',

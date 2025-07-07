@@ -20,9 +20,11 @@ export default function AdminLayout() {
         name="dashboard"
         options={{
           title: 'Dashboard',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
           ),
+          
         }}
       />
       <Tabs.Screen
