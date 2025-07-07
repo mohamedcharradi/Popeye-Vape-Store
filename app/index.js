@@ -44,7 +44,7 @@ export default function LoginScreen() {
       >
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>Store Management</Text>
+            <Text style={styles.title}>Popeye Vape Store</Text>
             <Text style={styles.subtitle}>Login to continue</Text>
           </View>
 
@@ -140,14 +140,14 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   loginButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#ffd000',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
     marginTop: 20,
   },
   loginButtonText: {
-    color: '#ffffff',
+    color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
   },
