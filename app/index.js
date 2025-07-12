@@ -1,44 +1,85 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
-const credentials = {
-  admin: { password: 'admin', role: 'admin' },
-  'popeye khzema': { password: 'popeye khzema', role: 'vender', store: 'khzema' },
-  'popeye sahloul': { password: 'popeye sahloul', role: 'vender', store: 'sahloul' },
-};
+import React, { useEffect, useState } from 'react';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { login } from '../API/api';
 
 export default function LoginScreen() {
-  const [address, setAddress] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = () => {
-    // Check if credentials exist
-    if (!credentials[address]) {
-      Alert.alert('Login Failed', 'Invalid credentials');
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem('token');
+      const user = await AsyncStorage.getItem('user');
+      if (token && user) {
+        const parsedUser = JSON.parse(user);
+        if (parsedUser.role === 'admin') {
+          router.replace('/admin/dashboard');
+        } else if (parsedUser.role === 'vender' && parsedUser.store) {
+          router.replace(`/vender/dashboard?store=${encodeURIComponent(parsedUser.store)}`);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Missing Fields', 'Please enter both email and password.');
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert('Weak Password', 'Password should be at least 6 characters.');
       return;
     }
 
-    // Check if password matches
-    if (credentials[address].password !== password) {
-      Alert.alert('Login Failed', 'Invalid credentials');
-      return;
-    }
+    setLoading(true);
 
-    // Login successful - navigate based on role
-    const user = credentials[address];
-    
-    if (user.role === 'admin') {
-      router.push('/admin/dashboard');
-    } else if (user.role === 'vender') {
-      router.push(`/vender/dashboard?store=${user.store}`);
+    try {
+      const data = await login(email, password);
+      const { token, user } = data;
+      console.log("🚀 ~ handleLogin ~ data:", data);
+
+      await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('user', JSON.stringify(user));
+
+      if (user.role === 'admin') {
+        // Admin dashboard
+        router.replace('/admin/dashboard');
+      } else if (user.role === 'vender' && user.store) {
+        // Vendor dashboard for their assigned store
+        router.replace(`/vender/dashboard?store=${encodeURIComponent(user.store)}`);
+      } else {
+        Alert.alert('Error', 'Unknown or incomplete user role.');
+      }
+    } catch (error) {
+      Alert.alert('Login Failed', error.message);
+      console.log('Login error:', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
@@ -50,14 +91,16 @@ export default function LoginScreen() {
 
           <View style={styles.form}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Address</Text>
+              <Text style={styles.label}>Email</Text>
               <TextInput
                 style={styles.input}
-                value={address}
-                onChangeText={setAddress}
-                placeholder="Enter your address"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your email"
                 autoCapitalize="none"
                 autoCorrect={false}
+                editable={!loading}
+                keyboardType="email-address"
               />
             </View>
 
@@ -71,19 +114,26 @@ export default function LoginScreen() {
                 secureTextEntry
                 autoCapitalize="none"
                 autoCorrect={false}
+                editable={!loading}
               />
             </View>
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              <Text style={styles.loginButtonText}>Login</Text>
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              <Text style={styles.loginButtonText}>
+                {loading ? 'Logging in...' : 'Login'}
+              </Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.helpSection}>
             <Text style={styles.helpTitle}>Available Logins:</Text>
-            <Text style={styles.helpText}>• Admin: admin / admin</Text>
-            <Text style={styles.helpText}>• Khzema Store: popeye khzema / popeye khzema</Text>
-            <Text style={styles.helpText}>• Sahloul Store: popeye sahloul / popeye sahloul</Text>
+            <Text style={styles.helpText}>• Admin: admin@example.com / admin</Text>
+            <Text style={styles.helpText}>• Khzema Store: khzema@example.com / password</Text>
+            <Text style={styles.helpText}>• Sahloul Store: sahloul@example.com / password</Text>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -91,45 +141,17 @@ export default function LoginScreen() {
   );
 }
 
+// Styles remain unchanged
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-  form: {
-    marginBottom: 40,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  keyboardView: { flex: 1 },
+  content: { flex: 1, justifyContent: 'center', paddingHorizontal: 20 },
+  header: { alignItems: 'center', marginBottom: 40 },
+  title: { fontSize: 32, fontWeight: 'bold', color: '#333', marginBottom: 8 },
+  subtitle: { fontSize: 16, color: '#666' },
+  form: { marginBottom: 40 },
+  inputContainer: { marginBottom: 20 },
+  label: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 8 },
   input: {
     backgroundColor: '#ffffff',
     borderWidth: 1,
@@ -169,4 +191,4 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 4,
   },
-}); 
+});
