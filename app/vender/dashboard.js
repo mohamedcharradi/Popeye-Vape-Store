@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -20,7 +21,15 @@ export default function VenderDashboard() {
     lowStockItems: 3,
     totalProducts: 25,
   });
-
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('user');
+      router.replace('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
   const [recentSales] = useState([
     { id: 1, productName: 'Puff', quantity: 2, amount: 50, time: '2 hours ago' },
     { id: 2, productName: 'Liquide', quantity: 1, amount: 25, time: '4 hours ago' },
@@ -48,9 +57,9 @@ export default function VenderDashboard() {
         <View style={styles.headerActions}>
           <TouchableOpacity 
             style={styles.homeButton} 
-            onPress={() => router.push('/')}
+            onPress={handleLogout} 
           >
-            <Ionicons name="home" size={24} color="#ffffff" />
+            <Ionicons name="log-out-outline" size={24} color="#1A1A1AFF" />
           </TouchableOpacity>
           <View style={styles.dateContainer}>
             <Text style={styles.date}>{new Date().toLocaleDateString()}</Text>
@@ -182,10 +191,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   homeButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'white',
     borderRadius: 8,
     padding: 8,
-    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   dateContainer: {
     alignItems: 'flex-end',

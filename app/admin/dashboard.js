@@ -1,11 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { formatCurrency } from '../../utils/helpers';
 
 export default function AdminDashboard() {
   const router = useRouter();
+
   const [stats] = useState({
     totalProducts: 45,
     totalStores: 2,
@@ -28,6 +37,16 @@ export default function AdminDashboard() {
     </View>
   );
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('user');
+      router.replace('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -37,7 +56,7 @@ export default function AdminDashboard() {
         </View>
         <TouchableOpacity 
           style={styles.homeButton} 
-          onPress={() => router.push('/')}
+          onPress={handleLogout} 
         >
           <Ionicons name="log-out-outline" size={24} color="#1A1A1AFF" />
         </TouchableOpacity>
@@ -128,14 +147,10 @@ const styles = StyleSheet.create({
     paddingTop: 40,    
     borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
-
   },
   headerContent: {
     flex: 1,
@@ -156,10 +171,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 8,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
@@ -176,16 +188,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   statCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#ffffff',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     width: '47%',
     borderLeftWidth: 4,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
@@ -221,11 +232,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+    shadowColor: '#000000FF',
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
@@ -236,7 +244,7 @@ const styles = StyleSheet.create({
   incomeStore: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#33333',
   },
   incomeDate: {
     fontSize: 14,
@@ -259,10 +267,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '47%',
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
@@ -274,4 +279,4 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
   },
-}); 
+});
